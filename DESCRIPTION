@@ -1,11 +1,23 @@
 Package: deconvBench
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A tool for approaches evaluation of cell fraction estimation
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Depends: 
+    R (>= 3.5.0)
+Imports:
+    e1071, 
+    preprocessCore, 
+    RSQLite
+Author: Jingxin Tao, Youjin Hao, Bo Li
+Maintainer: Jingxin Tao <taojingxin@cqnu.edu.cn>, Bo Li <libcell@cqnu.edu.cn>
+Description: This tool was originally developed to assess the performance of 
+    diverse approaches evaluation of cell fraction. 
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
