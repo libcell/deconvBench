@@ -20,8 +20,8 @@ if (!require("varhandle")) {
   install.packages("varhandle", dependencies = TRUE, repos="http://cran.r-project.org")
 }
 if (!require("MAST")) {
-  if (!require("BiocManger")) {install.packages("BiocManger")}
-  BiocManger::install.packages("MAST")
+  if (!require("BiocManager")) {install.packages("BiocManger")}
+  BiocManager::install.packages("MAST")
 }
 
 #load packages
