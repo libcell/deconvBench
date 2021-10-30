@@ -1,29 +1,6 @@
 #Deconvolution Functions
 #install these packages if necessary...
 
-if (!require("quadprog")) {
-  install.packages("quadprog", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("reshape")) {
-  install.packages("reshape", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("e1071")) {
-  install.packages("e1071", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("Seurat")) {
-  install.packages("Seurat", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("ROCR")) {
-  install.packages("ROCR", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("varhandle")) {
-  install.packages("varhandle", dependencies = TRUE, repos="http://cran.r-project.org")
-}
-if (!require("MAST")) {
-  if (!require("BiocManager")) {install.packages("BiocManger")}
-  BiocManager::install.packages("MAST")
-}
-
 #load packages
 library(quadprog)
 library(reshape)
