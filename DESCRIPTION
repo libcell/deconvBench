@@ -7,9 +7,15 @@ Depends:
 Imports:
     e1071, 
     preprocessCore, 
-    RSQLite
-Author: Jingxin Tao, Youjin Hao, Bo Li
-Maintainer: Jingxin Tao <taojingxin@cqnu.edu.cn>, Bo Li <libcell@cqnu.edu.cn>
+    RSQLite, 
+    quadprog, 
+    reshape, 
+    Seurat, 
+    ROCR, 
+    varhandle, 
+    MAST
+Author: Bo Li, Jingxin Tao, Youjin Hao 
+Maintainer: Bo Li <libcell@cqnu.edu.cn>, Jingxin Tao <taojingxin@cqnu.edu.cn>
 Description: This tool was originally developed to assess the performance of 
     diverse approaches evaluation of cell fraction. 
 License: MIT + file LICENSE

@@ -1,7 +1,6 @@
 #Deconvolution Functions
 #install these packages if necessary...
 
-#load packages
 library(quadprog)
 library(reshape)
 library(e1071)
@@ -11,29 +10,29 @@ library(varhandle)
 library(MAST)
 
 #trim bulk and single-cell data to contain the same genes
-trimData<-function(Signature,bulkData){
-	Genes<-intersect(rownames(Signature),names(bulkData))
-  	B<-bulkData[Genes]
-  	S<-Signature[Genes,]
-  	return(list("sig"=S,"bulk"=B))
+trimData <- function(Signature, bulkData) {
+	Genes <- intersect(rownames(Signature), names(bulkData))
+  	B <- bulkData[Genes]
+  	S <- Signature[Genes,]
+  	return(list("sig" = S, "bulk" = B))
 }
 
 
 #solve using OLS, constrained such that cell type numbers>0
-solveOLS<-function(S,B){
-  D<-t(S)%*%S
-  d<-t(S)%*%B
-  A<-cbind(diag(dim(S)[2]))
-  bzero<-c(rep(0,dim(S)[2]))
-  solution<-solve.QP(D,d,A,bzero)$solution
-  names(solution)<-colnames(S)
-  print(round(solution/sum(solution),5))
+solveOLS <- function(S, B) {
+  D <- t(S) %*% S
+  d <- t(S) %*% B
+  A <- cbind(diag(dim(S)[2]))
+  bzero <- c(rep(0, dim(S)[2]))
+  solution <- solve.QP(D, d, A, bzero)$solution
+  names(solution) <- colnames(S)
+  print(round(solution/sum(solution), 5))
   return(solution/sum(solution))
 }
 
 #return cell number, not proportion
 #do not print output
-solveOLSInternal<-function(S,B){
+solveOLSInternal <- function(S, B) {
   D<-t(S)%*%S
   d<-t(S)%*%B
   A<-cbind(diag(dim(S)[2]))
@@ -126,7 +125,7 @@ solveSVR<-function(S,B){
   lb=min(c(as.vector(S),B)) #lower bound
   Bs=((B-lb)/ub)*2-1
   Ss=((S-lb)/ub)*2-1
-  
+
   #perform SVR
   model<-svm(Ss,Bs, nu=0.5,scale = TRUE, type = "nu-regression",kernel ="linear",cost = 1)
   coef <- t(model$coefs) %*% model$SV
@@ -143,7 +142,7 @@ DEAnalysis<-function(scdata,id,path){
   exprObj2<-SetIdent(exprObj,ident.use=as.vector(id))
   print("Calculating differentially expressed genes:")
   for (i in unique(id)){
-    de_group <- FindMarkers(object=exprObj2, ident.1 = i, ident.2 = NULL, 
+    de_group <- FindMarkers(object=exprObj2, ident.1 = i, ident.2 = NULL,
                              only.pos = TRUE, test.use = "bimod")
     save(de_group,file=paste(path,"/de_",i,".RData",sep=""))
   }
@@ -151,10 +150,10 @@ DEAnalysis<-function(scdata,id,path){
 
 #build signature matrix using genes identified by DEAnalysis()
 buildSignatureMatrixUsingSeurat<-function(scdata,id,path,diff.cutoff=0.5,pval.cutoff=0.01){
-  
+
   #perform differential expression analysis
   DEAnalysis(scdata,id,path)
-  
+
   numberofGenes<-c()
   for (i in unique(id)){
     load(file=paste(path,"/de_",i,".RData",sep=""))
@@ -163,7 +162,7 @@ buildSignatureMatrixUsingSeurat<-function(scdata,id,path,diff.cutoff=0.5,pval.cu
     assign(paste("cluster_lrTest.table.",i,sep=""),de_group[which(rownames(de_group)%in%DEGenes[nonMir]),])
     numberofGenes<-c(numberofGenes,length(DEGenes[nonMir]))
   }
-  
+
   #need to reduce number of genes
   #for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
   #choose matrix with lowest condition number
@@ -251,21 +250,21 @@ m.auc=function(data.m,group.v) {
   AUC=apply(data.m, 1, function(x) v.auc(x,group.v))
   AUC[is.na(AUC)]=0.5
   return(AUC)
-  
-}  
 
-#perform DE analysis using MAST	    
+}
+
+#perform DE analysis using MAST
 DEAnalysisMAST<-function(scdata,id,path){
-  
+
   pseudo.count = 0.1
   data.used.log2   <- log2(scdata+pseudo.count)
   colnames(data.used.log2)<-make.unique(colnames(data.used.log2))
   diff.cutoff=0.5
   for (i in unique(id)){
     cells.symbol.list2     = colnames(data.used.log2)[which(id==i)]
-    cells.coord.list2      = match(cells.symbol.list2, colnames(data.used.log2))                          
+    cells.coord.list2      = match(cells.symbol.list2, colnames(data.used.log2))
     cells.symbol.list1     = colnames(data.used.log2)[which(id != i)]
-    cells.coord.list1      = match(cells.symbol.list1, colnames(data.used.log2))   
+    cells.coord.list1      = match(cells.symbol.list1, colnames(data.used.log2))
     data.used.log2.ordered  = cbind(data.used.log2[,cells.coord.list1], data.used.log2[,cells.coord.list2])
     group.v <- c(rep(0,length(cells.coord.list1)), rep(1, length(cells.coord.list2)))
     #ouput
@@ -273,7 +272,7 @@ DEAnalysisMAST<-function(scdata,id,path){
     Auc <- m.auc(data.used.log2.ordered, group.v)
     bigtable <- data.frame(cbind(log2.stat.result, Auc))
 
-    DE <- bigtable[bigtable$log2_fc >diff.cutoff,] 
+    DE <- bigtable[bigtable$log2_fc >diff.cutoff,]
     dim(DE)
     if(dim(DE)[1]>1){
       data.1                 = data.used.log2[,cells.coord.list1]
@@ -292,7 +291,7 @@ DEAnalysisMAST<-function(scdata,id,path){
                             geneid="Gene",  cellvars=c('Number.of.Cells', 'Population'),
                             phenovars=c('Population'), id='vbeta all')
       vbeta.1 <- subset(vbeta.fa,Number.of.Cells==1)
-      # .3 MAST 
+      # .3 MAST
       head(colData(vbeta.1))
       zlm.output <- zlm(~ Population, vbeta.1, method='bayesglm', ebayes=TRUE)
       show(zlm.output)
@@ -300,13 +299,13 @@ DEAnalysisMAST<-function(scdata,id,path){
       zlm.lr <- lrTest(zlm.output, 'Population')
       zlm.lr_pvalue <- melt(zlm.lr[,,'Pr(>Chisq)'])
       zlm.lr_pvalue <- zlm.lr_pvalue[which(zlm.lr_pvalue$test.type == 'hurdle'),]
-      
-      
-      
+
+
+
       lrTest.table <-  merge(zlm.lr_pvalue, DE, by.x = "primerid", by.y = "row.names")
       colnames(lrTest.table) <- c("Gene", "test.type", "p_value", paste("log2.mean.", "Cluster_Other", sep=""), paste("log2.mean.",i,sep=""), "log2fold_change", "Auc")
       cluster_lrTest.table <- lrTest.table[rev(order(lrTest.table$Auc)),]
-      
+
       #. 4 save results
       write.csv(cluster_lrTest.table, file=paste(path,"/",i,"_lrTest.csv", sep=""))
       save(cluster_lrTest.table, file=paste(path,"/",i,"_MIST.RData", sep=""))
@@ -318,7 +317,7 @@ DEAnalysisMAST<-function(scdata,id,path){
 buildSignatureMatrixMAST<-function(scdata,id,path,diff.cutoff=0.5,pval.cutoff=0.01){
   #compute differentially expressed genes for each cell type
   DEAnalysisMAST(scdata,id,path)
-  
+
   #for each cell type, choose genes in which FDR adjusted p-value is less than 0.01 and the estimated fold-change
   #is greater than 0.5
   numberofGenes<-c()
@@ -328,12 +327,12 @@ buildSignatureMatrixMAST<-function(scdata,id,path,diff.cutoff=0.5,pval.cutoff=0.
       pvalue_adjusted<-p.adjust(cluster_lrTest.table[,3], method = "fdr", n = length(cluster_lrTest.table[,3]))
       cluster_lrTest.table<-cbind(cluster_lrTest.table,pvalue_adjusted)
       DEGenes<-cluster_lrTest.table$Gene[intersect(which(pvalue_adjusted<pval.cutoff),which(cluster_lrTest.table$log2fold_change>diff.cutoff))]
-      nonMir = grep("MIR|Mir", DEGenes, invert = T)  # because Mir gene is usually not accurate 
+      nonMir = grep("MIR|Mir", DEGenes, invert = T)  # because Mir gene is usually not accurate
       assign(paste("cluster_lrTest.table.",i,sep=""),cluster_lrTest.table[which(cluster_lrTest.table$Gene%in%DEGenes[nonMir]),])
       numberofGenes<-c(numberofGenes,length(DEGenes[nonMir]))
     }
   }
-  
+
   #need to reduce number of genes
   #for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
   #for each, iterate and choose matrix with lowest condition number
