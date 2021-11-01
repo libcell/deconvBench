@@ -1,5 +1,5 @@
-#Deconvolution Functions
-#install these packages if necessary...
+# Deconvolution Functions
+# install these packages if necessary...
 
 library(quadprog)
 library(reshape)
@@ -9,7 +9,7 @@ library(ROCR)
 library(varhandle)
 library(MAST)
 
-#trim bulk and single-cell data to contain the same genes
+# trim bulk and single-cell data to contain the same genes
 trimData <- function(Signature, bulkData) {
   Genes <- intersect(rownames(Signature), names(bulkData))
   B <- bulkData[Genes]
@@ -18,7 +18,7 @@ trimData <- function(Signature, bulkData) {
 }
 
 
-#solve using OLS, constrained such that cell type numbers>0
+# solve using OLS, constrained such that cell type numbers>0
 solveOLS <- function(S, B) {
   D <- t(S) %*% S
   d <- t(S) %*% B
@@ -30,8 +30,8 @@ solveOLS <- function(S, B) {
   return(solution / sum(solution))
 }
 
-#return cell number, not proportion
-#do not print output
+# return cell number, not proportion
+# do not print output
 solveOLSInternal <- function(S, B) {
   D <- t(S) %*% S
   d <- t(S) %*% B
@@ -42,19 +42,19 @@ solveOLSInternal <- function(S, B) {
   return(solution)
 }
 
-#solve using WLS with weights dampened by a certain dampening constant
+# solve using WLS with weights dampened by a certain dampening constant
 solveDampenedWLS <- function(S, B) {
-  #first solve OLS, use this solution to find a starting point for the weights
+  # first solve OLS, use this solution to find a starting point for the weights
   solution <- solveOLSInternal(S, B)
-  #now use dampened WLS, iterate weights until convergence
+  # now use dampened WLS, iterate weights until convergence
   iterations <- 0
   changes <- c()
-  #find dampening constant for weights using cross-validation
+  # find dampening constant for weights using cross-validation
   j <- findDampeningConstant(S, B, solution)
   change <- 1
   while (change > .01 & iterations < 1000) {
     newsolution <- solveDampenedWLSj(S, B, solution, j)
-    #decrease step size for convergence
+    # decrease step size for convergence
     solutionAverage <-
       rowMeans(cbind(newsolution, matrix(
         solution, nrow = length(solution), ncol = 4
@@ -68,7 +68,7 @@ solveDampenedWLS <- function(S, B) {
   return(solution / sum(solution))
 }
 
-#solve WLS given a dampening constant
+# solve WLS given a dampening constant
 solveDampenedWLSj <- function(S, B, goldStandard, j) {
   multiplier <- 1 * 2 ^ (j - 1)
   sol <- goldStandard
@@ -87,20 +87,20 @@ solveDampenedWLSj <- function(S, B, goldStandard, j) {
   return(solution)
 }
 
-#find a dampening constant for the weights using cross-validation
+# find a dampening constant for the weights using cross-validation
 findDampeningConstant <- function(S, B, goldStandard) {
   solutionsSd <- NULL
-  #goldStandard is used to define the weights
+  # goldStandard is used to define the weights
   sol <- goldStandard
   ws <- as.vector((1 / (S %*% sol)) ^ 2)
   wsScaled <- ws / min(ws)
   wsScaledMinusInf <- wsScaled
-  #ignore infinite weights
+  # ignore infinite weights
   if (max(wsScaled) == "Inf") {
     wsScaledMinusInf <- wsScaled[-which(wsScaled == "Inf")]
   }
-  #try multiple values of the dampening constant (multiplier)
-  #for each, calculate the variance of the dampened weighted solution for a subset of genes
+  # try multiple values of the dampening constant (multiplier)
+  # for each, calculate the variance of the dampened weighted solution for a subset of genes
   for (j in 1:ceiling(log2(max(wsScaledMinusInf)))) {
     multiplier <- 1 * 2 ^ (j - 1)
     wsDampened <- wsScaled
@@ -108,29 +108,29 @@ findDampeningConstant <- function(S, B, goldStandard) {
     solutions <- NULL
     seeds <- c(1:100)
     for (i in 1:100) {
-      set.seed(seeds[i]) #make nondeterministic
+      set.seed(seeds[i]) # make nondeterministic
       subset <-
-        sample(length(ws), size = length(ws) * 0.5) #randomly select half of gene set
-      #solve dampened weighted least squares for subset
+        sample(length(ws), size = length(ws) * 0.5) # randomly select half of gene set
+      # solve dampened weighted least squares for subset
       fit = lm (B[subset] ~ -1 + S[subset, ], weights = wsDampened[subset])
       sol <- fit$coef * sum(goldStandard) / sum(fit$coef)
       solutions <- cbind(solutions, sol)
     }
     solutionsSd <- cbind(solutionsSd, apply(solutions, 1, sd))
   }
-  #choose dampening constant that results in least cross-validation variance
+  # choose dampening constant that results in least cross-validation variance
   j <- which.min(colMeans(solutionsSd ^ 2))
   return(j)
 }
 
 solveSVR <- function(S, B) {
-  #scaling
-  ub = max(c(as.vector(S), B)) #upper bound
-  lb = min(c(as.vector(S), B)) #lower bound
+  # scaling
+  ub = max(c(as.vector(S), B)) # upper bound
+  lb = min(c(as.vector(S), B)) # lower bound
   Bs = ((B - lb) / ub) * 2 - 1
   Ss = ((S - lb) / ub) * 2 - 1
 
-  #perform SVR
+  # perform SVR
   model <-
     svm(
       Ss,
@@ -149,7 +149,7 @@ solveSVR <- function(S, B) {
   return(coef / sum(coef))
 }
 
-#perform DE analysis using Seurat
+# perform DE analysis using Seurat
 DEAnalysis <- function(scdata, id, path) {
   exprObj <-
     CreateSeuratObject(raw.data = as.data.frame(scdata), project = "DE")
@@ -168,14 +168,14 @@ DEAnalysis <- function(scdata, id, path) {
   }
 }
 
-#build signature matrix using genes identified by DEAnalysis()
+# build signature matrix using genes identified by DEAnalysis()
 buildSignatureMatrixUsingSeurat <-
   function(scdata,
            id,
            path,
            diff.cutoff = 0.5,
            pval.cutoff = 0.01) {
-    #perform differential expression analysis
+    # perform differential expression analysis
     DEAnalysis(scdata, id, path)
 
     numberofGenes <- c()
@@ -192,9 +192,9 @@ buildSignatureMatrixUsingSeurat <-
       numberofGenes <- c(numberofGenes, length(DEGenes[nonMir]))
     }
 
-    #need to reduce number of genes
-    #for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
-    #choose matrix with lowest condition number
+    # need to reduce number of genes
+    # for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
+    # choose matrix with lowest condition number
     conditionNumbers <- c()
     for (G in 50:200) {
       Genes <- c()
@@ -210,7 +210,7 @@ buildSignatureMatrixUsingSeurat <-
         j = j + 1
       }
       Genes <- unique(Genes)
-      #make signature matrix
+      # make signature matrix
       ExprSubset <- scdata[Genes, ]
       Sig <- NULL
       for (i in unique(id)) {
@@ -222,7 +222,7 @@ buildSignatureMatrixUsingSeurat <-
       conditionNumbers <- c(conditionNumbers, kappa(Sig))
     }
     G <-
-      which.min(conditionNumbers) + min(49, numberofGenes - 1) #G is optimal gene number
+      which.min(conditionNumbers) + min(49, numberofGenes - 1) # G is optimal gene number
     #
     Genes <- c()
     j = 1
@@ -249,16 +249,16 @@ buildSignatureMatrixUsingSeurat <-
     return(Sig)
   }
 
-##alternative differential expression method using MAST
+## alternative differential expression method using MAST
 
-#functions for DE
+# functions for DE
 
 Mean.in.log2space = function(x, pseudo.count) {
   return(log2(mean(2 ^ (x) - pseudo.count) + pseudo.count))
 }
 
 stat.log2 = function(data.m, group.v, pseudo.count) {
-  #data.m=data.used.log2
+  # data.m = data.used.log2
   log2.mean.r <-
     aggregate(t(data.m), list(as.character(group.v)), function(x)
       Mean.in.log2space(x, pseudo.count))
@@ -267,7 +267,7 @@ stat.log2 = function(data.m, group.v, pseudo.count) {
     paste("mean.group", log2.mean.r[1, ], sep = "")
   log2.mean.r = log2.mean.r[-1, ]
   log2.mean.r = as.data.frame(log2.mean.r)
-  log2.mean.r = varhandle::unfactor(log2.mean.r)  #from varhandle
+  log2.mean.r = varhandle::unfactor(log2.mean.r)  # from varhandle
   log2.mean.r[, 1] = as.numeric(log2.mean.r[, 1])
   log2.mean.r[, 2] = as.numeric(log2.mean.r[, 2])
   log2_foldchange = log2.mean.r$mean.group1 - log2.mean.r$mean.group0
@@ -295,7 +295,7 @@ m.auc = function(data.m, group.v) {
 
 }
 
-#perform DE analysis using MAST
+# perform DE analysis using MAST
 DEAnalysisMAST <- function(scdata, id, path) {
   pseudo.count = 0.1
   data.used.log2   <- log2(scdata + pseudo.count)
@@ -309,7 +309,7 @@ DEAnalysisMAST <- function(scdata, id, path) {
     data.used.log2.ordered  = cbind(data.used.log2[, cells.coord.list1], data.used.log2[, cells.coord.list2])
     group.v <-
       c(rep(0, length(cells.coord.list1)), rep(1, length(cells.coord.list2)))
-    #ouput
+    # ouput
     log2.stat.result <-
       stat.log2(data.used.log2.ordered, group.v, pseudo.count)
     Auc <- m.auc(data.used.log2.ordered, group.v)
@@ -391,18 +391,18 @@ DEAnalysisMAST <- function(scdata, id, path) {
   }
 }
 
-#build signature matrix using genes identified by DEAnalysisMAST()
+# build signature matrix using genes identified by DEAnalysisMAST()
 buildSignatureMatrixMAST <-
   function(scdata,
            id,
            path,
            diff.cutoff = 0.5,
            pval.cutoff = 0.01) {
-    #compute differentially expressed genes for each cell type
+    # compute differentially expressed genes for each cell type
     DEAnalysisMAST(scdata, id, path)
 
-    #for each cell type, choose genes in which FDR adjusted p-value is less than 0.01 and the estimated fold-change
-    #is greater than 0.5
+    # for each cell type, choose genes in which FDR adjusted p-value is less than 0.01 and the estimated fold-change
+    # is greater than 0.5
     numberofGenes <- c()
     for (i in unique(id)) {
       if (file.exists(paste(path, "/", i, "_MIST.RData", sep = ""))) {
@@ -427,9 +427,9 @@ buildSignatureMatrixMAST <-
       }
     }
 
-    #need to reduce number of genes
-    #for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
-    #for each, iterate and choose matrix with lowest condition number
+    # need to reduce number of genes
+    # for each subset, order significant genes by decreasing fold change, choose between 50 and 200 genes
+    # for each, iterate and choose matrix with lowest condition number
     conditionNumbers <- c()
     for (G in 50:200) {
       Genes <- c()
@@ -446,7 +446,7 @@ buildSignatureMatrixMAST <-
         j = j + 1
       }
       Genes <- unique(Genes)
-      #make signature matrix
+      # make signature matrix
       ExprSubset <- scdata[Genes, ]
       Sig <- NULL
       for (i in unique(id)) {
