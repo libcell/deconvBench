@@ -5,7 +5,7 @@ total.norm <- function(x) {
   return(z)
 }
 
-Xcell <- function(signature = NULL, bulkdata, RNAseq = TRUE) {
+Xcell <- function(bulkdata, signature = NULL, RNAseq = TRUE) {
   res <- xCell::xCellAnalysis(expr = bulkdata,
                               signatures = signature,
                               genes = NULL,
@@ -22,3 +22,4 @@ Xcell <- function(signature = NULL, bulkdata, RNAseq = TRUE) {
   res <- t(res)
   return(res)
 }
+

@@ -19,7 +19,7 @@
 #'
 #'   In R:
 #'       source('CIBERSORT.R')
-#'       results <- CIBERSORT('sig_matrix_file.txt','mixture_file.txt', perm, QN)
+#'       results <- CIBERSORT('signature_file.txt','bulkdata.txt', perm, QN)
 #'
 #'       Options:
 #'       1) perm = No. permutations; set to >=100 to calculate p-values (default = 0)
@@ -117,18 +117,18 @@ doPerm <- function(perm, X, Y){
 }
 
 #' Main functions
-#' @param sig_matrix file path to gene expression from isolated cells
-#' @param mixture_file heterogenous mixed expression
+#' @param bulkdata heterogenous mixed expression
+#' @param signature file path to gene expression from isolated cells
 #' @param perm Number of permutations
 #' @param QN Perform quantile normalization or not (TRUE/FALSE)
 #' @export
 
-Cibersort <- function(sig_matrix, mixture_file, perm = 10, QN = TRUE){
+Cibersort <- function(bulkdata, signature, perm = 10, QN = TRUE){
 
   # read in data
 
-  X <- data.matrix(sig_matrix)
-  Y <- data.matrix(mixture_file)
+  X <- data.matrix(signature)
+  Y <- data.matrix(bulkdata)
 
   # order
   X <- X[order(rownames(X)),]

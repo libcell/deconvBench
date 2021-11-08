@@ -7,15 +7,15 @@ The function to do cell deconvolution analysis proposed by Newman, et al., 2015.
 The function to do cell deconvolution analysis proposed by Newman, et al., 2015.
 }
 \usage{
-results <- Cibersort(sig_matrix, mixture_file, perm = 0, QN = TRUE)
+results <- Cibersort(signature, bulkdata, perm = 0, QN = TRUE)
 }
 \arguments{
-  \item{sig_matrix}{
+    \item{bulkdata}{
+  bulk gene expression matrix, and samples in cols and genes in rows
+  }
+  \item{signature}{
   the specific marker expression profiles of cell types, and cells in cols as
   well as genes in rows
-  }
-  \item{mixture_file}{
-  bulk gene expression matrix, and samples in cols and genes in rows
   }
   \item{perm}{Number of permutations}
   \item{QN}{Perform quantile normalization or not (TRUE/FALSE)}
@@ -51,8 +51,8 @@ NEWMAN A M, LIU C L, GREEN M R, et al.
 # Using the standarded dataset
 signature.mat <- LM22
 bulk.mat <- Abis_refarray
-results <- Cibersort(sig_matrix = signature.mat,
-                     mixture_file = Abis_refarray,
+results <- Cibersort(bulkdata = Abis_refarray,
+                     signature = signature.mat,
                      perm = 0,
                      QN = TRUE)
 print(results)
@@ -75,8 +75,8 @@ rownames(mixdata)
 mixdata <- mixdata[, -ncol(mixdata)]
 
 bulk.mat <- mixdata
-results <- Cibersort(sig_matrix = signature.mat,
-                     mixture_file = mixdata,
+results <- Cibersort(bulkdata = mixdata,
+                     signature = signature.mat,
                      perm = 0,
                      QN = TRUE)
 print(results)

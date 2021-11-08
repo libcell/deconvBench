@@ -3,6 +3,7 @@
 
 MCPcounter <-
   function(bulkdata,
+           signature = NULL,
            featuresType = c("affy133P2_probesets",
                             "HUGO_symbols",
                             "ENTREZ_ID",
