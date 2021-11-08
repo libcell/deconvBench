@@ -16,7 +16,10 @@ Imports:
     MAST, 
     MCPcounter, 
     FARDEEP, 
-    xCell
+    xCell, 
+    EPIC, 
+    immunedeconv, 
+    NITUMID
 Author: Bo Li, Jingxin Tao, Youjin Hao 
 Maintainer: Bo Li <libcell@cqnu.edu.cn>, Jingxin Tao <taojingxin@cqnu.edu.cn>
 Description: This tool was originally developed to assess the performance of 

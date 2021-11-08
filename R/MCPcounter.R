@@ -1,5 +1,5 @@
 
-# require(MCPcounter)
+require(MCPcounter)
 
 MCPcounter <-
   function(bulkdata,
