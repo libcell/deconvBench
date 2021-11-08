@@ -1,5 +1,4 @@
 
-library(ADAPTS)
 # library(DeconRNASeq)
 
 # method: one of four, nnls, DeconRNASeq, proportionsInAdmixture, and SVMDECON
