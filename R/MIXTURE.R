@@ -15,14 +15,22 @@ Mixture <- function(signature = LM22, bulkdata, ncore = 1L) {
                        functionMixture = nu.svm.robust.RFE,
                        useCores = ncore,
                        verbose = TRUE,
-                       nullDist = "PopulationBased",  ####"none" or "PopulationBased"
+                       nullDist = "PopulationBased", #### "none" or "PopulationBased"
                        fileSave = savefile)
 
   MIXTURE_res_prop <- GetMixture(mix.test1)
 
-  MIXTURE_res_abs <- GetMixture(mix.test1,type="absolute")
+  MIXTURE_res_abs <- GetMixture(mix.test1, type = "absolute")
 
-  TOAST_res <- res$H
+  cat("\n")
+  cat("\n")
+  cat("\n")
 
-  return(TOAST_res)
+  cat("####################### results are as follows ######################")
+
+  cat("\n")
+  cat("\n")
+  cat("\n")
+
+  return(MIXTURE_res_abs)
 }
