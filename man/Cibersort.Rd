@@ -61,7 +61,7 @@ print(results)
 signature.mat <- LM22
 
 path <- system.file("extdata",
-                    "deconvTest.eg.sqlite",
+                    "deconvBench.eg.sqlite",
                     package = "deconvBench")
 
 library(RSQLite)
