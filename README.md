@@ -7,7 +7,7 @@ deconvBench is a R package used to assess the performance of diverse approaches 
 
 ## Installation
 
-To install the TICPE, install from github using devtools
+To install the deconvBench, install from github using devtools
 
 ``` r
 library(devtools)
