@@ -26,7 +26,7 @@ install.packages("deconvBench", repos = NULL, type = "source")
 It’s hard to succinctly describe how deconvBench works because it embodies a 
 deep philosophy of visualization. 
 
-!!!Note: before testing， please download the whole database file (deconvBench.eg.sqlite, http:// ) and place it in the deconvBench/inst/extdata/ directory after installation. 
+!!!Note: after installation, you must download the whole database file (deconvBench.eg.sqlite, http:// ) to replace the primary *.sqlite file in the directory deconvBench/inst/extdata/.  
 
 ## Contact email
 
