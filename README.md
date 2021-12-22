@@ -24,7 +24,9 @@ install.packages("deconvBench", repos = NULL, type = "source")
 ## Usage
 
 It’s hard to succinctly describe how deconvBench works because it embodies a 
-deep philosophy of visualization.
+deep philosophy of visualization. 
+
+!!!Note: before testing， please download the whole database file (deconvBench.eg.sqlite, http:// ) and place it in the deconvBench/inst/extdata/ directory after installation. 
 
 ## Contact email
 
